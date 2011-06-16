@@ -1,2 +1,94 @@
-<h1><%= title %></h1>
-<p>Welcome to <%= title %></p>
+<h1>Loterie</h1>
+
+<p id="waiting">Déconnecté: en cours de connexion...</p>
+<div id="connected" style="display:none">
+  <p id="unidentified">Connecté: en cours d'identification</p>
+  <div id="identified" style="display:none">
+    <p>Connecté: <strong id="playername"></strong></p>
+    <p id="played" style="display:none">Victoires/Défaites: <span id="wins">0</span>/<span id="loses">0</span></p>
+    <p id="played" style="display:none">Dernier tirage: <span id="time">?</span></p>
+  </div>
+  <div id="gotplayers" style="display:none">
+    <p><span id="nbplayers">0</span> joueurs connectés:</p>
+    <ul id="players"></ul>
+  </div>
+</div>
+
+<hr />
+<pre id="log" style="max-height:100px;overflow:auto"></pre>
+
+
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+var client = new io.Socket();
+
+var els = {};
+[ 'log', 'waiting', 'connected', 'unidentified', 'identified', 'gotplayers', 'nbplayers'
+, 'playername', 'played', 'wins', 'loses', 'time', 'players'].forEach(function (id) {
+  els[id] = document.getElementById(id);
+});
+
+function log (msg) {
+  els.log.innerHTML = msg + '<br />' + els.log.innerHTML;
+}
+
+var playerName = null;
+
+client.on('connect', function () {
+  els.waiting.style.display = 'none';
+  els.connected.style.display = '';
+});
+client.on('disconnect', function () {
+  els.waiting.style.display = '';
+  els.connected.style.display = 'none';
+});
+
+client.on('message', function (msg) {
+  if (msg.name) {
+    playerName = msg.name;
+    els.playername.innerHTML = playerName;
+    els.unidentified.style.display = 'none';
+    els.identified.style.display = '';
+  }
+  if (msg.connect && msg.connect != playerName) {
+    log('Nouveau connecté: <strong>' + msg.connect + '</strong>');
+  }
+  if (msg.disconnect && msg.disconnect != playerName) {
+    log('Abandon: <strong>' + msg.disconnect + '</strong>');
+  }
+  if (msg.players) {
+    els.nbplayers.innerHTML = msg.players.length;
+    els.gotplayers.style.display = '';
+    var lis = '';
+    msg.players.forEach(function (player) {
+      lis += '<li>';
+      if (player == playerName) lis += '<strong>';
+      lis += player;
+      if (player == playerName) lis += '</strong>';
+      lis += '</li>';
+    });
+    els.players.innerHTML = lis;
+  }
+  if (msg.time) {
+    els.time.innerHTML = (new Date(msg.time)).toString();
+  }
+  if (msg.nbWins) {
+    els.wins.innerHTML = msg.nbWins;
+  }
+  if (msg.nbLoses) {
+    els.loses.innerHTML = msg.nbLoses;
+  }
+  if (msg.win) {
+    log('Victoire !');
+  } else if (msg.lose) {
+    log('Échec :(' + (msg.winner ? (' (vainqueur: <strong>' + msg.winner + '</strong>') : ''));
+  } else if (msg.cancel) {
+    log('Pas assez de joueur: tirage annulé');
+  }
+  if (msg.win || msg.lose || msg.cancel) {
+    els.played.style.display = '';
+  }
+});
+
+client.connect();
+</script>
