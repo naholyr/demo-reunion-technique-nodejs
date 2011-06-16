@@ -81,7 +81,7 @@ client.on('message', function (msg) {
   if (msg.win) {
     log('Victoire !');
   } else if (msg.lose) {
-    log('Échec :(' + (msg.winner ? (' (vainqueur: <strong>' + msg.winner + '</strong>') : ''));
+    log('Échec :(' + (msg.winner ? (' (vainqueur: <strong>' + msg.winner + '</strong>)') : ''));
   } else if (msg.cancel) {
     log('Pas assez de joueur: tirage annulé');
   }
