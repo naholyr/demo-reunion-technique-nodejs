@@ -8,10 +8,10 @@
   },
   "main": "server.js",
   "engines": {
-    "node": "~v0.4.8"
+    "node": "0.4.x"
   },
   "dependencies": {
-    "async": "*"
+    "express": "*"
   },
   "devDependencies": {}
 }
