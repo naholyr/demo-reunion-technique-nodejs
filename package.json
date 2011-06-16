@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "base-converter": "*",
-    "express": "*"
+    "express": "*",
+    "connect": "1.0.x"
   },
   "devDependencies": {}
 }
