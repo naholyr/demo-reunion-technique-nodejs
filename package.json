@@ -11,7 +11,8 @@
     "node": "~v0.4.8"
   },
   "dependencies": {
-    "base-converter": "*"
+    "base-converter": "*",
+    "express": "*"
   },
   "devDependencies": {}
 }
