@@ -1,6 +1,6 @@
-var m1 = require('./module1'),
-    m2 = require('./module2'),
-    m3 = require('./module3');
+var convert = require('base-converter');
 
-console.log('foo() → %s', m1.foo());
-m2.hello(m3.who);
+console.log('Méthodes', Object.keys(convert));
+console.log('1337 en base 16 = %s', convert.decToHex(1337));
+console.log('1337 en base 36 = %s', convert.decTo36(1337));
+console.log('1337 en base 62 = %s', convert.decTo62(1337));

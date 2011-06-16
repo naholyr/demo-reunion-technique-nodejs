@@ -1,1 +1,0 @@
-exports.who = 'world';
