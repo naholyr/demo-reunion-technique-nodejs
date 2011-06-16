@@ -1,10 +1,6 @@
-var fs = require('fs');
+var m1 = require('./module1'),
+    m2 = require('./module2'),
+    m3 = require('./module3');
 
-function onReadFile (filename) {
-  return function (err, content) {
-    console.log('Lecture "%s": %s', filename, err ? ('Erreur = ' + (err.message || err)) : content);
-  }
-}
-
-fs.readFile('fail', onReadFile('fail'));
-fs.readFile('README', onReadFile('README'));
+console.log('foo() → %s', m1.foo());
+m2.hello(m3.who);
