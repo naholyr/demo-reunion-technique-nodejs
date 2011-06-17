@@ -86,9 +86,6 @@ server.on('connection', function (client) {
   client.on('disconnect', function () {
     client.broadcast({"disconnect": playerName, "players": getPlayerNames(playerName)});
   });
-  // Renommage
-  client.on('message', function (msg) {
-  });
 });
 
 function tirage () {
@@ -130,7 +127,6 @@ app.on('listening', tirage); // Tirage initial
 
 app.on('listening', function () {
   console.log("Express server listening on port %d", app.address().port);
-  tirage(); // Initialiser
 });
 
 if (require.main === module) {
