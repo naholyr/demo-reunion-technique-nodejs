@@ -78,16 +78,35 @@ server.on('connection', function (client) {
   console.log('Client %s : %s', client.sessionId, playerName);
   data.nbWins[playerName] = 0;
   data.nbLoses[playerName] = 0;
+  var players = getPlayerNames();
   // Dire à tout le monde qu'un nouveau joueur est arrivé
-  server.broadcast({"connect": playerName, "players": getPlayerNames()});
+  server.broadcast({"connect": playerName, "players": players});
   // Envoyer au joueur son nom et la date du dernier tirage
-  client.send({"name": playerName, "time": data.time, "players": getPlayerNames()});
+  client.send({"name": playerName, "time": data.time, "players": players});
   // Si le joueur quitte la partie, prévenir tout le monde aussi
   client.on('disconnect', function () {
     client.broadcast({"disconnect": playerName, "players": getPlayerNames(playerName)});
   });
   // Renommage
   client.on('message', function (msg) {
+    if (msg.rename && msg.rename != playerName) {
+      console.log('Demande de renommage %s en %s', playerName, msg.rename);
+      // Vérifier que le nom n'est pas déjà pris
+      var other = getClient(msg.rename);
+      if (other) {
+        client.send({"error": "name-already-in-use", "whosessid": other.sessionId, "whoname": msg.rename});
+        other.send({"error": "steal-name", "who": playerName});
+      } else {
+        var oldName = playerName;
+        playerName = data.names[client.sessionId] = msg.rename;
+        data.nbWins[playerName] = data.nbWins[oldName];
+        data.nbLoses[playerName] = data.nbLoses[oldName];
+        delete data.nbWins[oldName];
+        delete data.nbLoses[oldName];
+        var players = getPlayerNames();
+        server.broadcast({"rename": [oldName, playerName], "players": players});
+      }
+    }
   });
 });
 
@@ -130,7 +149,6 @@ app.on('listening', tirage); // Tirage initial
 
 app.on('listening', function () {
   console.log("Express server listening on port %d", app.address().port);
-  tirage(); // Initialiser
 });
 
 if (require.main === module) {
